@@ -92,7 +92,7 @@ async function bootstrap() {
 
   SwaggerModule.setup('docs', app, document);
 
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
   Logger.log(
     `🚀 Aplikasi Eventix Backend berjalan di: http://localhost:${port}/${apiPrefix}`,
   );
