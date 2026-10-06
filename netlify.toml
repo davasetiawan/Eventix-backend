@@ -1,0 +1,31 @@
+[build]
+  command = "npm run build"
+  publish = "public"
+
+[functions]
+  node_bundler = "nft"
+  included_files = ["dist/**", "node_modules/swagger-ui-dist/**"]
+
+# Semua request API & Swagger diteruskan ke Netlify Function "api"
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/docs"
+  to = "/.netlify/functions/api/docs"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/docs/*"
+  to = "/.netlify/functions/api/docs/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/"
+  to = "/docs"
+  status = 302
