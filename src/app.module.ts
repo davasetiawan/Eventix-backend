@@ -27,17 +27,37 @@ import { SeedService } from './seed.service';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'postgres',
-        host: config.get<string>('DB_HOST', 'localhost'),
-        port: config.get<number>('DB_PORT', 5432),
-        username: config.get<string>('DB_USERNAME', 'postgres'),
-        password: config.get<string>('DB_PASSWORD', 'postgres'),
-        database: config.get<string>('DB_DATABASE', 'eventix_db'),
-        entities: [User, Event, TicketTier, Registration, PaymentMethod],
-        synchronize: config.get<boolean>('DB_SYNC', true),
-        logging: config.get<string>('NODE_ENV') === 'development',
-      }),
+      useFactory: (config: ConfigService) => {
+        const entities = [User, Event, TicketTier, Registration, PaymentMethod];
+        const logging = config.get<string>('NODE_ENV') === 'development';
+        const netlifyDbUrl = config.get<string>('NETLIFY_DB_URL');
+
+        // Di Netlify: pakai Netlify Database. Skema dikelola lewat
+        // netlify/database/migrations, jadi synchronize dimatikan.
+        if (netlifyDbUrl) {
+          return {
+            type: 'postgres' as const,
+            url: netlifyDbUrl,
+            entities,
+            synchronize: false,
+            uuidExtension: 'pgcrypto' as const,
+            extra: { max: 1 },
+            logging,
+          };
+        }
+
+        return {
+          type: 'postgres' as const,
+          host: config.get<string>('DB_HOST', 'localhost'),
+          port: config.get<number>('DB_PORT', 5432),
+          username: config.get<string>('DB_USERNAME', 'postgres'),
+          password: config.get<string>('DB_PASSWORD', 'postgres'),
+          database: config.get<string>('DB_DATABASE', 'eventix_db'),
+          entities,
+          synchronize: config.get<boolean>('DB_SYNC', true),
+          logging,
+        };
+      },
     }),
     TypeOrmModule.forFeature([User]),
     AuthModule,

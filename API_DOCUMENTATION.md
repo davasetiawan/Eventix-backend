@@ -6,8 +6,10 @@ Eventix adalah platform khusus **penjualan tiket konser**. Dokumen ini berisi pa
 
 ## 🌐 Informasi Server & Autentikasi
 
-* **Base API URL**: `http://localhost:3000/api/v1`
-* **Swagger UI (Interaktif)**: `http://localhost:3000/docs`
+* **Base API URL (Production/Netlify)**: `https://stalwart-gumption-5914d4.netlify.app/api/v1`
+* **Swagger UI (Production/Netlify)**: `https://stalwart-gumption-5914d4.netlify.app/docs`
+* **Base API URL (Lokal)**: `http://localhost:3000/api/v1`
+* **Swagger UI (Lokal)**: `http://localhost:3000/docs`
 * **Superadmin Default**: `admin@gmail.com` / `Admin123!`
 
 ### Cara Membuka Gembok Otorisasi (🔒):
