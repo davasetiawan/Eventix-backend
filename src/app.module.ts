@@ -27,17 +27,29 @@ import { SeedService } from './seed.service';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'postgres',
-        host: config.get<string>('DB_HOST', 'localhost'),
-        port: config.get<number>('DB_PORT', 5432),
-        username: config.get<string>('DB_USERNAME', 'postgres'),
-        password: config.get<string>('DB_PASSWORD', 'postgres'),
-        database: config.get<string>('DB_DATABASE', 'eventix_db'),
-        entities: [User, Event, TicketTier, Registration, PaymentMethod],
-        synchronize: config.get<boolean>('DB_SYNC', true),
-        logging: config.get<string>('NODE_ENV') === 'development',
-      }),
+      useFactory: (config: ConfigService) => {
+        const dbUrl = config.get<string>('DATABASE_URL');
+        const isSsl =
+          config.get<string>('DB_SSL') === 'true' ||
+          config.get<string>('NODE_ENV') === 'production';
+
+        return {
+          type: 'postgres' as const,
+          ...(dbUrl
+            ? { url: dbUrl }
+            : {
+                host: config.get<string>('DB_HOST', 'localhost'),
+                port: config.get<number>('DB_PORT', 5432),
+                username: config.get<string>('DB_USERNAME', 'postgres'),
+                password: config.get<string>('DB_PASSWORD', 'postgres'),
+                database: config.get<string>('DB_DATABASE', 'eventix_db'),
+              }),
+          entities: [User, Event, TicketTier, Registration, PaymentMethod],
+          synchronize: config.get<string>('DB_SYNC') !== 'false',
+          logging: config.get<string>('NODE_ENV') === 'development',
+          ssl: isSsl ? { rejectUnauthorized: false } : false,
+        };
+      },
     }),
     TypeOrmModule.forFeature([User]),
     AuthModule,
